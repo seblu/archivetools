@@ -19,6 +19,8 @@
 LOCKFILE=~/."${0##*/}".lock
 ARMBASE=/srv/ftp/archlinux/arm
 PREFIX=packages
+LASTM=month
+LASTW=week
 
 [[ $1 != "" && ${1:0:1} != / ]] && { echo 'Absolute path please'; exit 1; }
 
@@ -30,6 +32,12 @@ flock -n 9 || { echo 'Locking Failed' >&2; exit 1; }
 umask 022
 
 cd "$ARMBASE"
+
+# update last month
+ln -snf "$(date +%Y/%m/01)" "$LASTM"
+
+# update last week
+ln -snf "$(date -d 'last monday' +%Y/%m/%d)" "$LASTW"
 
 # clean dead links pass
 echo ':: clening dead links'

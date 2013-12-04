@@ -24,8 +24,6 @@ ARMBASE=/srv/ftp/archlinux/arm
 SNAPR="$(date +%Y/%m/%d)"
 SNAP="$ARMBASE/$SNAPR"
 LAST="$ARMBASE/last"
-LASTM="$ARMBASE/month"
-LASTW="$ARMBASE/week"
 
 # we lock!
 exec 9> "$LOCKFILE"
@@ -47,11 +45,6 @@ touch "$SNAP"
 # update last
 ln -snf "$SNAPR" "$LAST"
 
-# update last month
-ln -snf "$(date +%Y/%m/01)" "$LASTM"
-
-# update last week
-ln -snf "$(date -d 'last monday' +%Y/%m/%d)" "$LASTW"
 
 # use hardlink (in case of error)
 #if type -p hardlink &>/dev/null; then
