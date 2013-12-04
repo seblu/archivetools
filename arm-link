@@ -1,0 +1,61 @@
+#!/bin/bash -e
+
+# Copyright © Sébastien Luttringer
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+
+LOCKFILE=~/."${0##*/}".lock
+ARMBASE=/srv/ftp/archlinux/arm
+PREFIX=packages
+
+[[ $1 != "" && ${1:0:1} != / ]] && { echo 'Absolute path please'; exit 1; }
+
+# we lock!
+exec 9> "$LOCKFILE"
+flock -n 9 || { echo 'Locking Failed' >&2; exit 1; }
+
+# nice umask
+umask 022
+
+cd "$ARMBASE"
+
+# clean dead links pass
+echo ':: clening dead links'
+[[ -d "$PREFIX" ]] && find -L "$PREFIX" -type l -delete -print
+
+# create new links pass
+echo ':: creating new links'
+find ${1:-"$ARMBASE"/20??} -type f -name '*.pkg.tar.xz'| while read src; do
+  pkgname="${src##*/}"
+  first="${pkgname:0:1}"
+  parent="$ARMBASE/$PREFIX/${first,,}"
+  dst="$parent/$pkgname"
+  # ensure dad dir is present
+  [[ -d "$parent" ]] || mkdir -v -p "$parent"
+  # copy file if necessary
+  if [[ "$src" -nt "$dst" ]]; then
+    # remove is necessary to be done and not use -f in ln
+    # because this create buggy relative symlink in some case.
+    # there is fix around this in next coreutils
+    [[ -e "$dst" ]] && rm -f "$dst"
+    # don't use harlink, to be able to easily remove package by date
+    # removing a directory by date, will remove symlink in the clean pass
+    ln -v -r -s "$src" "$dst"
+  fi
+done
+
+touch "$ARMBASE/$PREFIX"
+
+# vim:set sw=2 ts=2 ft=sh et:

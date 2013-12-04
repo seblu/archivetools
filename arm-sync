@@ -1,0 +1,66 @@
+#!/bin/bash -e
+
+# Copyright © Sébastien Luttringer
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+
+[[ -t 1 ]] && set -x
+
+UPSTREAM='rsync://pkgbuild.com/packages/'
+LOCKFILE=~/."${0##*/}".lock
+ARMBASE=/srv/ftp/archlinux/arm
+SNAPR="$(date +%Y/%m/%d)"
+SNAP="$ARMBASE/$SNAPR"
+LAST="$ARMBASE/last"
+LASTM="$ARMBASE/month"
+LASTW="$ARMBASE/week"
+
+# we lock!
+exec 9> "$LOCKFILE"
+flock -n 9 || { echo 'Locking Failed' >&2; exit 1; }
+
+# nice umask
+umask 022
+
+# ensure destination exists
+[[ -d $SNAP ]] || mkdir -p "$SNAP"
+
+# Rsync from master using last sync
+# We must use absolute path with --link-dest to avoid errors
+rsync  -rltH --link-dest="$LAST/" --exclude '*/.*' "$UPSTREAM" "$SNAP/"
+
+# only to have a quick check of sync in listdir
+touch "$SNAP"
+
+# update last
+ln -snf "$SNAPR" "$LAST"
+
+# update last month
+ln -snf "$(date +%Y/%m/01)" "$LASTM"
+
+# update last week
+ln -snf "$(date -d 'last monday' +%Y/%m/%d)" "$LASTW"
+
+# use hardlink (in case of error)
+#if type -p hardlink &>/dev/null; then
+#  hardlink "$ARMBASE" >/dev/null || true
+#fi
+
+# update package list (check your PATH)
+if type -p arm-link &>/dev/null; then
+  arm-link "$LAST/" >/dev/null
+fi
+
+# vim:set sw=2 ts=2 ft=sh et:
