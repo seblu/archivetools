@@ -42,18 +42,18 @@ rsync  -rltH --link-dest="$LAST/" --exclude '*/.*' "$UPSTREAM" "$SNAP/"
 # only to have a quick check of sync in listdir
 touch "$SNAP"
 
-# update last
+# update last symlink only when last rsync is successful (bash -e)
 ln -snf "$SNAPR" "$LAST"
 
+# update package list
+if type -p arm-link &>/dev/null; then
+  arm-link "$LAST/" >/dev/null
+fi
 
 # use hardlink (in case of error)
 #if type -p hardlink &>/dev/null; then
 #  hardlink "$ARMBASE" >/dev/null || true
 #fi
 
-# update package list (check your PATH)
-if type -p arm-link &>/dev/null; then
-  arm-link "$LAST/" >/dev/null
-fi
 
 # vim:set sw=2 ts=2 ft=sh et:

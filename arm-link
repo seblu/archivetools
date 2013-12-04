@@ -18,11 +18,12 @@
 
 LOCKFILE=~/."${0##*/}".lock
 ARMBASE=/srv/ftp/archlinux/arm
-PREFIX=packages
+PKGTREE=packages
+PKGFLAT=all
 LASTM=month
 LASTW=week
 
-[[ $1 != "" && ${1:0:1} != / ]] && { echo 'Absolute path please'; exit 1; }
+[[ $1 != "" && ${1:0:1} != / ]] && { echo 'Absolute path please, ln is bugged'; exit 1; }
 
 # we lock!
 exec 9> "$LOCKFILE"
@@ -39,31 +40,46 @@ ln -snf "$(date +%Y/%m/01)" "$LASTM"
 # update last week
 ln -snf "$(date -d 'last monday' +%Y/%m/%d)" "$LASTW"
 
+# ensure dir are here
+[[ -e $PKGTREE ]] || mkdir -p "$PKGTREE"
+[[ -e $PKGFLAT ]] || mkdir -p "$PKGFLAT"
+
 # clean dead links pass
 echo ':: clening dead links'
-[[ -d "$PREFIX" ]] && find -L "$PREFIX" -type l -delete -print
+find -L "$PKGTREE" -type l -delete -print
+find -L "$PKGFLAT" -type l -delete -print
 
 # create new links pass
 echo ':: creating new links'
 find ${1:-"$ARMBASE"/20??} -type f -name '*.pkg.tar.xz'| while read src; do
   pkgname="${src##*/}"
   first="${pkgname:0:1}"
-  parent="$ARMBASE/$PREFIX/${first,,}"
-  dst="$parent/$pkgname"
-  # ensure dad dir is present
+  parent="$ARMBASE/$PKGTREE/${first,,}"
+  # destination in tree
+  tdst="$parent/$pkgname"
+  # destination in flat dir
+  fdst="$ARMBASE/$PKGFLAT/$pkgname"
+  # ensure pkgtree dad dir is present
   [[ -d "$parent" ]] || mkdir -v -p "$parent"
   # copy file if necessary
-  if [[ "$src" -nt "$dst" ]]; then
+  if [[ "$src" -nt "$tdst" ]]; then
     # remove is necessary to be done and not use -f in ln
     # because this create buggy relative symlink in some case.
     # there is fix around this in next coreutils
-    [[ -e "$dst" ]] && rm -f "$dst"
+    [[ -e "$tdst" ]] && rm -f -v "$tdst"
     # don't use harlink, to be able to easily remove package by date
     # removing a directory by date, will remove symlink in the clean pass
-    ln -v -r -s "$src" "$dst"
+    ln -v -r -s "$src" "$tdst"
+  fi
+  if [[ "$src" -nt "$fdst" ]]; then
+    [[ -e "$fdst" ]] && rm -f -v "$fdst"
+    ln -v -r -s "$src" "$fdst"
   fi
 done
 
-touch "$ARMBASE/$PREFIX"
+# disallow listing of PKGFLAT. Too much file
+echo 'No listing allowed here.' > "$PKGFLAT"/index.html
+
+touch "$PKGTREE" "$PKGFLAT"
 
 # vim:set sw=2 ts=2 ft=sh et:
