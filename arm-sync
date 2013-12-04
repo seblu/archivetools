@@ -50,10 +50,10 @@ if type -p arm-link &>/dev/null; then
   arm-link "$LAST/" >/dev/null
 fi
 
-# use hardlink (in case of error)
+# use hardlink to optimize space usage
+# currently disabled because hardlink segfault
 #if type -p hardlink &>/dev/null; then
 #  hardlink "$ARMBASE" >/dev/null || true
 #fi
-
 
 # vim:set sw=2 ts=2 ft=sh et:
