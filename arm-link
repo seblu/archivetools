@@ -55,13 +55,16 @@ done
 # create new links pass
 echo ':: creating new links'
 find ${1:-"$ARMBASE"/20??} -type f -name '*.pkg.tar.xz'| while read src; do
-  pkgname="${src##*/}"
+  filename="${src##*/}"
+  pkgname="${filename%-*}" #remove arch and extension
+  pkgname="${pkgname%-*}" #remove pkgrel
+  pkgname="${pkgname%-*}" #remove pkgver
   first="${pkgname:0:1}"
-  parent="$ARMBASE/$PKGTREE/${first,,}"
+  parent="$ARMBASE/$PKGTREE/${first,,}/$pkgname"
   # destination in tree
-  tdst="$parent/$pkgname"
+  tdst="$parent/$filename"
   # destination in flat dir
-  fdst="$ARMBASE/$PKGFLAT/$pkgname"
+  fdst="$ARMBASE/$PKGFLAT/$filename"
   # ensure pkgtree dad dir is present
   [[ -d "$parent" ]] || mkdir -v -p "$parent"
   # copy file if necessary
