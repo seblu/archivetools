@@ -40,14 +40,17 @@ ln -snf "$(date +%Y/%m/01)" "$LASTM"
 # update last week
 ln -snf "$(date -d 'last monday' +%Y/%m/%d)" "$LASTW"
 
-# ensure dir are here
-[[ -e $PKGTREE ]] || mkdir -p "$PKGTREE"
-[[ -e $PKGFLAT ]] || mkdir -p "$PKGFLAT"
 
-# clean dead links pass
-echo ':: clening dead links'
-find -L "$PKGTREE" -type l -delete -print
-find -L "$PKGFLAT" -type l -delete -print
+for _d in "$PKGTREE" "$PKGFLAT"; do
+  # ensure dir are here
+  [[ -e $_d ]] || mkdir -p "$_d"
+
+  echo ":: removing dead links in ${_d##*/}"
+  find -L "$_d" -type l -delete -print
+
+  echo ":: removing empty directories in ${_d##*/}"
+  find "$_d" -type d -empty -delete -print
+done
 
 # create new links pass
 echo ':: creating new links'
