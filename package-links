@@ -21,13 +21,22 @@ REPOS=/srv/ftp/archlinux/archive/repos
 BASE=/srv/ftp/archlinux/archive/packages
 PKGFLAT=.all
 
-[[ $1 != "" && ${1:0:1} != / ]] && { echo 'Absolute path please, ln is bugged'; exit 1; }
+case $1 in
+  -a) SCANDIR="$REPOS";;
+  -l|"") SCANDIR="$(ls -1d "$REPOS"/*/*/*|sort|tail -n1)" ;;
+  *)
+    echo "usage: ${0##*/} -a|-l" >&2
+    echo '  -a: scan all archived repositories' >&2
+    echo '  -l: scan last archived repostory' >&2
+    exit 1
+esac
+
+[[ -t 1 ]] && set -x
 
 # we lock!
 exec 9> "$LOCKFILE"
 flock -n 9 || { echo 'Locking Failed' >&2; exit 1; }
 
-[[ -t 1 ]] && set -x
 
 # nice umask
 umask 022
@@ -40,7 +49,7 @@ find -L "$BASE" -type l -delete -print
 
 # create new links pass
 echo 'creating new links'
-find ${1:-$REPOS} -type f -name '*.pkg.tar.xz' -o -name '*.pkg.tar.xz.sig'| while read src; do
+find $SCANDIR -type f -name '*.pkg.tar.xz' -o -name '*.pkg.tar.xz.sig'| while read src; do
   filename="${src##*/}"
   pkgname="${filename%-*}" #remove arch and extension
   pkgname="${pkgname%-*}" #remove pkgrel
