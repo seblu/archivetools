@@ -1,0 +1,6 @@
+[Unit]
+Description=Archive AUR
+
+[Service]
+Type=oneshot
+ExecStart=/home/archlinux/archivetools/aur-rsync

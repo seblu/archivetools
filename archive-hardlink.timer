@@ -1,0 +1,10 @@
+[Unit]
+Description=Monthly Hardlinkng of Archlinux Archive
+
+[Timer]
+OnCalendar=*-*-03 03:00:00
+AccuracySec=1m
+Persistent=true
+
+[Install]
+WantedBy=timers.target

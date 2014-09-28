@@ -1,0 +1,8 @@
+[Unit]
+Description=Archlinux Archive Update
+
+[Service]
+Type=oneshot
+ExecStart=/home/archlinux/archivetools/repo-rsync
+ExecStart=/home/archlinux/archivetools/package-links
+ExecStart=/home/archlinux/archivetools/arm-link

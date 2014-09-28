@@ -1,0 +1,9 @@
+[Unit]
+Description=Hardlinking of Archilinux Archive
+After=archive-repos.service archive-aur.service
+
+[Service]
+Type=oneshot
+Nice=19
+IOSchedulingClass=idle
+ExecStart=/usr/bin/hardlink -Ocv /srv/ftp/archlinux/archive
