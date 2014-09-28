@@ -23,7 +23,6 @@ LOCKFILE=~/."${0##*/}".lock
 BASE=/srv/ftp/archlinux/archive/repos
 SNAPR="$(date +%Y/%m/%d)"
 SNAP="$BASE/$SNAPR"
-LAST="$(ls -1d "$BASE"/*/*/*|sort|tail -n1)"
 
 # we lock!
 exec 9> "$LOCKFILE"
@@ -35,14 +34,19 @@ umask 022
 # ensure destination exists
 [[ -d $SNAP ]] || mkdir -p "$SNAP"
 
+# compute last but today
+LAST="$(ls -1d "$BASE"/*/*/*|sort|grep -v $SNAPR|tail -n1)"
+
 # display info
 echo starting rsync
 echo   snapshot is: $SNAP
 echo   last is: $LAST
 
+[[ -n $LAST ]] && LINKDEST="--link-dest=$LAST/"
+
 # Rsync from master using last sync
 # We must use absolute path with --link-dest to avoid errors
-rsync  -rltH --link-dest="$LAST/" --exclude '*/.*' "$UPSTREAM" "$SNAP/"
+rsync  -rltH "$LINKDEST" --exclude '*/.*' "$UPSTREAM" "$SNAP/"
 
 # only to have a quick check of sync in listdir
 touch "$SNAP"
