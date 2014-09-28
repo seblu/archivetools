@@ -20,10 +20,10 @@
 
 UPSTREAM='rsync://pkgbuild.com/packages/'
 LOCKFILE=~/."${0##*/}".lock
-ARMBASE=/srv/ftp/archlinux/arm
+BASE=/srv/ftp/archlinux/archive/repos
 SNAPR="$(date +%Y/%m/%d)"
-SNAP="$ARMBASE/$SNAPR"
-LAST="$ARMBASE/last"
+SNAP="$BASE/$SNAPR"
+LAST="$(ls -1d "$BASE"/*/*/*|sort|tail -n1)"
 
 # we lock!
 exec 9> "$LOCKFILE"
@@ -41,19 +41,5 @@ rsync  -rltH --link-dest="$LAST/" --exclude '*/.*' "$UPSTREAM" "$SNAP/"
 
 # only to have a quick check of sync in listdir
 touch "$SNAP"
-
-# update last symlink only when last rsync is successful (bash -e)
-ln -snf "$SNAPR" "$LAST"
-
-# update package list
-if type -P arm-link &>/dev/null; then
-  arm-link "$LAST/" >/dev/null
-fi
-
-# use hardlink to optimize space usage
-# currently disabled because hardlink segfault
-#if type -P hardlink &>/dev/null; then
-#  hardlink "$ARMBASE" >/dev/null || true
-#fi
 
 # vim:set sw=2 ts=2 ft=sh et:

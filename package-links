@@ -1,0 +1,80 @@
+#!/bin/bash -e
+
+# Copyright © Sébastien Luttringer
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+
+LOCKFILE=~/."${0##*/}".lock
+REPOS=/srv/ftp/archlinux/archive/repos
+BASE=/srv/ftp/archlinux/archive/packages
+PKGFLAT=.all
+
+[[ $1 != "" && ${1:0:1} != / ]] && { echo 'Absolute path please, ln is bugged'; exit 1; }
+
+# we lock!
+exec 9> "$LOCKFILE"
+flock -n 9 || { echo 'Locking Failed' >&2; exit 1; }
+
+[[ -t 1 ]] && set -x
+
+# nice umask
+umask 022
+
+# ensure dirs are here
+[[ -e $BASE/$PKGFLAT ]] || mkdir -p "$BASE/$PKGFLAT"
+
+echo ":: removing dead links in ${BASE##*/}"
+find -L "$BASE" -type l -delete -print
+
+# create new links pass
+echo ':: creating new links'
+find ${1:-$REPOS} -type f -name '*.pkg.tar.xz' -o -name '*.pkg.tar.xz.sig'| while read src; do
+  filename="${src##*/}"
+  pkgname="${filename%-*}" #remove arch and extension
+  pkgname="${pkgname%-*}" #remove pkgrel
+  pkgname="${pkgname%-*}" #remove pkgver
+  first="${pkgname:0:1}"
+  parent="$BASE/${first,,}/$pkgname"
+  # destination in tree
+  tdst="$parent/$filename"
+  # destination in flat dir
+  fdst="$BASE/$PKGFLAT/$filename"
+  # ensure pkgtree parent dir is present
+  [[ -d "$parent" ]] || mkdir -v -p "$parent"
+  # copy file if necessary
+  if [[ "$src" -nt "$tdst" ]]; then
+    # remove is necessary to be done and not use -f in ln
+    # because this create buggy relative symlink in some case.
+    # there is fix around this in next coreutils
+    [[ -e "$tdst" ]] && rm -f -v "$tdst"
+    # don't use harlink, to be able to easily remove package by date
+    # removing a directory by date, will remove symlink in the clean pass
+    ln -v -r -s "$src" "$tdst"
+  fi
+  if [[ "$src" -nt "$fdst" ]]; then
+    [[ -e "$fdst" ]] && rm -f -v "$fdst"
+    ln -v -r -s "$src" "$fdst"
+  fi
+done
+
+# disallow listing of PKGFLAT. Too much file
+echo 'No listing allowed here.' > "$BASE/$PKGFLAT/index.html"
+
+echo ":: removing empty directories in ${BASE##*/}"
+find "$BASE" -type d -empty -delete -print
+
+touch "$BASE" "$BASE/$PKGFLAT"
+
+# vim:set sw=2 ts=2 ft=sh et:

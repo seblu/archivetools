@@ -18,12 +18,14 @@
 
 LOCKFILE=~/."${0##*/}".lock
 ARMBASE=/srv/ftp/archlinux/arm
-PKGTREE=packages
-PKGFLAT=all
+ARCBASE=/srv/ftp/archlinux/archive/repos
+LAST=last
 LASTM=month
 LASTW=week
 
 [[ $1 != "" && ${1:0:1} != / ]] && { echo 'Absolute path please, ln is bugged'; exit 1; }
+
+[[ -t 1 ]] && set -x
 
 # we lock!
 exec 9> "$LOCKFILE"
@@ -34,58 +36,13 @@ umask 022
 
 cd "$ARMBASE"
 
+# update last
+ln -srnf "$(ls -1d "$ARCBASE"/*/*/*|sort|tail -n1)" "$LAST"
+
 # update last month
-ln -snf "$(date +%Y/%m/01)" "$LASTM"
+ln -srnf "$(date +%Y/%m/01)" "$LASTM"
 
 # update last week
-ln -snf "$(date -d 'last monday' +%Y/%m/%d)" "$LASTW"
-
-
-for _d in "$PKGTREE" "$PKGFLAT"; do
-  # ensure dir are here
-  [[ -e $_d ]] || mkdir -p "$_d"
-
-  echo ":: removing dead links in ${_d##*/}"
-  find -L "$_d" -type l -delete -print
-
-  echo ":: removing empty directories in ${_d##*/}"
-  find "$_d" -type d -empty -delete -print
-done
-
-# create new links pass
-echo ':: creating new links'
-find ${1:-"$ARMBASE"/20??} -type f -name '*.pkg.tar.xz'| while read src; do
-  filename="${src##*/}"
-  pkgname="${filename%-*}" #remove arch and extension
-  pkgname="${pkgname%-*}" #remove pkgrel
-  pkgname="${pkgname%-*}" #remove pkgver
-  first="${pkgname:0:1}"
-  parent="$ARMBASE/$PKGTREE/${first,,}/$pkgname"
-  # destination in tree
-  tdst="$parent/$filename"
-  # destination in flat dir
-  fdst="$ARMBASE/$PKGFLAT/$filename"
-  # ensure pkgtree dad dir is present
-  [[ -d "$parent" ]] || mkdir -v -p "$parent"
-  # copy file if necessary
-  if [[ "$src" -nt "$tdst" ]]; then
-    # remove is necessary to be done and not use -f in ln
-    # because this create buggy relative symlink in some case.
-    # there is fix around this in next coreutils
-    [[ -e "$tdst" ]] && rm -f -v "$tdst"
-    # don't use harlink, to be able to easily remove package by date
-    # removing a directory by date, will remove symlink in the clean pass
-    ln -v -r -s "$src" "$tdst"
-  fi
-  if [[ "$src" -nt "$fdst" ]]; then
-    [[ -e "$fdst" ]] && rm -f -v "$fdst"
-    ln -v -r -s "$src" "$fdst"
-  fi
-done
-
-# disallow listing of PKGFLAT. Too much file
-echo 'No listing allowed here.' > "$PKGFLAT"/index.html
-
-touch "$PKGTREE" "$PKGFLAT"
+ln -srnf "$(date -d 'last monday' +%Y/%m/%d)" "$LASTW"
 
 # vim:set sw=2 ts=2 ft=sh et:
