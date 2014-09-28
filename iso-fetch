@@ -1,0 +1,31 @@
+#!/bin/bash
+
+[[ -t 0 ]] && set -x
+
+
+FROM=http://mir.archlinux.fr/iso/
+TO=/srv/ftp/archlinux/archive/iso/
+
+LOCK=~/."${0##*/}".lock
+LAST=~/."${0##*/}".fail
+
+echo 'Locking...'
+exec 9> "$LOCK"
+flock -n 9 || { echo 'Locking Failed'; exit 1; }
+
+[[ -t 1 ]] && set -x
+
+ISO="$1"
+[[ -n $ISO ]] || ISO=$(date +%Y.%m.01)
+
+umask 022
+
+cd "$TO"
+wget --mirror --no-host-directories --cut-dirs=1 --no-parent "$FROM/$ISO/"
+
+# remove index.html
+find . -name '*.html' -delete
+
+[[ -t 0 ]] && type -P tree >/dev/null && tree -h "$ISO"
+
+# vim:set sw=2 ts=2 ft=sh et:
