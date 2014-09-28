@@ -35,11 +35,11 @@ umask 022
 # ensure dirs are here
 [[ -e $BASE/$PKGFLAT ]] || mkdir -p "$BASE/$PKGFLAT"
 
-echo ":: removing dead links in ${BASE##*/}"
+echo "removing dead links in ${BASE##*/}"
 find -L "$BASE" -type l -delete -print
 
 # create new links pass
-echo ':: creating new links'
+echo 'creating new links'
 find ${1:-$REPOS} -type f -name '*.pkg.tar.xz' -o -name '*.pkg.tar.xz.sig'| while read src; do
   filename="${src##*/}"
   pkgname="${filename%-*}" #remove arch and extension
@@ -72,7 +72,7 @@ done
 # disallow listing of PKGFLAT. Too much file
 echo 'No listing allowed here.' > "$BASE/$PKGFLAT/index.html"
 
-echo ":: removing empty directories in ${BASE##*/}"
+echo "removing empty directories in ${BASE##*/}"
 find "$BASE" -type d -empty -delete -print
 
 touch "$BASE" "$BASE/$PKGFLAT"

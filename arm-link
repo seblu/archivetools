@@ -19,9 +19,6 @@
 LOCKFILE=~/."${0##*/}".lock
 ARMBASE=/srv/ftp/archlinux/arm
 ARCBASE=/srv/ftp/archlinux/archive/repos
-LAST=last
-LASTM=month
-LASTW=week
 
 [[ $1 != "" && ${1:0:1} != / ]] && { echo 'Absolute path please, ln is bugged'; exit 1; }
 
@@ -37,12 +34,12 @@ umask 022
 cd "$ARMBASE"
 
 # update last
-ln -srnf "$(ls -1d "$ARCBASE"/*/*/*|sort|tail -n1)" "$LAST"
-
-# update last month
-ln -srnf "$(date +%Y/%m/01)" "$LASTM"
+ln -svrnf "$(ls -1d "$ARCBASE"/*/*/*|sort|tail -n1)" last
 
 # update last week
-ln -srnf "$(date -d 'last monday' +%Y/%m/%d)" "$LASTW"
+ln -srvnf "$ARCBASE/$(date -d 'last monday' +%Y/%m/%d)" week
+
+# update last month
+ln -srvnf "$ARCBASE/$(date +%Y/%m/01)" month
 
 # vim:set sw=2 ts=2 ft=sh et:

@@ -35,6 +35,11 @@ umask 022
 # ensure destination exists
 [[ -d $SNAP ]] || mkdir -p "$SNAP"
 
+# display info
+echo starting rsync
+echo   snapshot is: $SNAP
+echo   last is: $LAST
+
 # Rsync from master using last sync
 # We must use absolute path with --link-dest to avoid errors
 rsync  -rltH --link-dest="$LAST/" --exclude '*/.*' "$UPSTREAM" "$SNAP/"
