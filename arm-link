@@ -17,8 +17,8 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 LOCKFILE=~/."${0##*/}".lock
-ARMBASE=/srv/ftp/archlinux/arm
-ARCBASE=/srv/ftp/archlinux/archive/repos
+ARMBASE=/srv/data/http/mirror.6502.ws/archlinux/arm
+ARCBASE=/srv/data/http/mirror.6502.ws/archlinux/archive/repos
 
 [[ $1 != "" && ${1:0:1} != / ]] && { echo 'Absolute path please, ln is bugged'; exit 1; }
 

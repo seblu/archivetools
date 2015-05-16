@@ -17,8 +17,8 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 LOCKFILE=~/."${0##*/}".lock
-REPOS=/srv/ftp/archlinux/archive/repos
-BASE=/srv/ftp/archlinux/archive/packages
+REPOS=/srv/data/http/mirror.6502.ws/archlinux/archive/repos
+BASE=/srv/data/http/mirror.6502.ws/archlinux/archive/packages
 PKGFLAT=.all
 
 case $1 in

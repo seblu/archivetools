@@ -3,8 +3,8 @@
 [[ -t 0 ]] && set -x
 
 
-FROM=http://mir.archlinux.fr/iso/
-TO=/srv/ftp/archlinux/archive/iso/
+FROM=http://mirrors.kernel.org/archlinux/iso/
+TO=/srv/data/http/mirror.6502.ws/archlinux/archive/iso/
 
 LOCK=~/."${0##*/}".lock
 LAST=~/."${0##*/}".fail
@@ -21,10 +21,7 @@ ISO="$1"
 umask 022
 
 cd "$TO"
-wget --mirror --no-host-directories --cut-dirs=1 --no-parent "$FROM/$ISO/"
-
-# remove index.html
-find . -name '*.html' -delete
+wget -e robots=off --reject "index.html*" --mirror --no-host-directories --cut-dirs=2 --no-parent "$FROM/$ISO/"
 
 [[ -t 0 ]] && type -P tree >/dev/null && tree -h "$ISO"
 
