@@ -1,0 +1,6 @@
+[Unit]
+Description=Arch Mirror Synchronization Service
+
+[Service]
+Type=oneshot
+ExecStart=/opt/local/archivetools/bin/sync

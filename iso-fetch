@@ -1,10 +1,7 @@
 #!/bin/bash
 
-[[ -t 0 ]] && set -x
-
-
 FROM=http://mirrors.kernel.org/archlinux/iso/
-TO=/srv/data/http/mirror.6502.ws/archlinux/archive/iso/
+TO=/srv/data/http/0x1b.io/mirror/archlinux/archive/iso/
 
 LOCK=~/."${0##*/}".lock
 LAST=~/."${0##*/}".fail
@@ -13,15 +10,13 @@ echo 'Locking...'
 exec 9> "$LOCK"
 flock -n 9 || { echo 'Locking Failed'; exit 1; }
 
-[[ -t 1 ]] && set -x
-
 ISO="$1"
 [[ -n $ISO ]] || ISO=$(date +%Y.%m.01)
 
 umask 022
 
 cd "$TO"
-wget -e robots=off --reject "index.html*" --mirror --no-host-directories --cut-dirs=2 --no-parent "$FROM/$ISO/"
+wget -q -e robots=off --reject "index.html*" --mirror --no-host-directories --cut-dirs=2 --no-parent "$FROM/$ISO/"
 
 [[ -t 0 ]] && type -P tree >/dev/null && tree -h "$ISO"
 

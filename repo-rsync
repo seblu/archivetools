@@ -1,10 +1,8 @@
 #!/bin/bash -e
 
-[[ -t 1 ]] && set -x
-
 UPSTREAM='rsync://mirror.pkgbuild.com/packages/'
 LOCKFILE=~/."${0##*/}".lock
-BASE=/srv/data/http/mirror.6502.ws/archlinux/archive/repos
+BASE=/srv/data/http/0x1b.io/mirror/archlinux/archive/repos
 SNAPR="$(date +%Y/%m/%d)"
 SNAP="$BASE/$SNAPR"
 
@@ -22,9 +20,9 @@ umask 022
 LAST="$(ls -1d $BASE/*/*/*|sort|grep -v $SNAPR|tail -n1)"
 
 # display info
-echo starting rsync
-echo   snapshot is: $SNAP
-echo   last is: $LAST
+echo "starting rsync"
+echo "    snapshot is: $SNAP"
+echo "    last is: $LAST"
 
 [[ -n $LAST ]] && LINKDEST="--link-dest=$LAST/"
 
