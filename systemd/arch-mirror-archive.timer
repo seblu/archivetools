@@ -1,9 +1,0 @@
-[Unit]
-Description=Daily Arch Repository Sync
-
-[Timer]
-OnCalendar=daily
-Persistent=true
-
-[Install]
-WantedBy=multi-user.target
