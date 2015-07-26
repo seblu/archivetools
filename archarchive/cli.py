@@ -84,12 +84,10 @@ def link_update(link_dir, version):
     current_link_tgt = os.path.join(link_dir, 'current')
     week_link_tgt = os.path.join(link_dir, 'week')
     month_link_tgt = os.path.join(link_dir, 'month')
-    version_link_tgt = os.path.join(link_dir, version)
 
     link_tgts = [current_link_tgt,
                  week_link_tgt,
-                 month_link_tgt,
-                 version_link_tgt]
+                 month_link_tgt]
 
     version_link_src = os.path.join(link_dir, version)
     log.debug('version_link_src: {0}'.format(version_link_src))
@@ -102,17 +100,20 @@ def link_update(link_dir, version):
                 log.debug('existing_link_src: {0}'.format(existing_link_src))
 
                 if existing_link_src != version_link_src:
-                    log.debug('version has changed, relinking to: {0}'.version_link_src)
+                    log.debug('version has changed, relinking to: {0}'.format(version_link_src))
 
                     log.debug('rm {0}'.format(link_tgt))
                     os.remove(link_tgt)
+                    log.debug('ln -s {0} {1}'.format(version_link_src, link_tgt))
+                    os.symlink(version_link_src, link_tgt)
                 else:
                     log.debug('version has not changed, leaving as is: {0}'.format(version_link_src))
             else:
                 log.debug('we dont have a symlink, something is wrong: {0}'.format(link_tgt))
 
         else:
-            log.debug('version is new: {0}'.format(version_link_src))
+            log.deubg('no existing link_tgt: {0}'.format(link_tgt))
+            log.debug('version is now: {0}'.format(version_link_src))
 
             log.debug('ln -s {0} {1}'.format(version_link_src, link_tgt))
             os.symlink(version_link_src, link_tgt)
@@ -130,7 +131,7 @@ def link_update(link_dir, version):
 @click.option('--no-iso-sync', is_flag=True, show_default=True)
 @click.option('--no-repo-sync', is_flag=True, show_default=True)
 def sync(pkg_sync_url, iso_sync_url, run_dir, data_dir, version, debug, no_iso_sync, no_repo_sync):
-    click.echo("sync: pkg_sync_url: %s, iso_sync_url: %s, run_dir: %s, data_dir: %s" % (pkg_sync_url, iso_sync_url, run_dir, data_dir))
+    click.echo("sync: pkg_sync_url: %s, iso_sync_url: %s, run_dir: %s, data_dir: %s, version: %s" % (pkg_sync_url, iso_sync_url, run_dir, data_dir, version))
 
     if debug:
         logging.basicConfig(level=logging.DEBUG)
