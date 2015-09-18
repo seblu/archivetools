@@ -1,0 +1,10 @@
+[Unit]
+Description=Daily Archlinux Archive ISO Update
+
+[Timer]
+OnCalendar=*-*-02 02:00:00
+AccuracySec=1m
+Persistent=true
+
+[Install]
+WantedBy=timers.target
