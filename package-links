@@ -18,8 +18,10 @@
 
 LOCKFILE=~/."${0##*/}".lock
 REPOS=/srv/ftp/archlinux/archive/repos
-BASE=/srv/ftp/archlinux/archive/packages
-PKGFLAT=.all
+PKGBASE=/srv/ftp/archlinux/archive/packages
+PKGFLAT="$PKGBASE/.all" #must be subdirectory of $PKGBASE
+PKGEXT='.pkg.tar.xz'
+PKGSIG="$PKGEXT.sig"
 
 case $1 in
   -a) SCANDIR="$REPOS";;
@@ -42,14 +44,14 @@ flock -n 9 || { echo 'Locking Failed' >&2; exit 1; }
 umask 022
 
 # ensure dirs are here
-[[ -e $BASE/$PKGFLAT ]] || mkdir -p "$BASE/$PKGFLAT"
+[[ -e "$PKGFLAT" ]] || mkdir -p "$PKGFLAT"
 
-echo "removing dead links in ${BASE##*/}"
-find -L "$BASE" -type l -delete -print
+echo "removing dead links in ${PKGBASE##*/}"
+find -L "$PKGBASE" -type l -delete -print
 
 # create new links pass
 echo 'creating new links'
-find $SCANDIR -type f -name '*.pkg.tar.xz' -o -name '*.pkg.tar.xz.sig'| while read src; do
+find $SCANDIR -type f -name "*$PKGEXT" -o -name "*$PKGSIG"| while read src; do
   filename="${src##*/}"
   pkgname="${filename%-*}" #remove arch and extension
   pkgname="${pkgname%-*}" #remove pkgrel
@@ -59,7 +61,7 @@ find $SCANDIR -type f -name '*.pkg.tar.xz' -o -name '*.pkg.tar.xz.sig'| while re
   # destination in tree
   tdst="$parent/$filename"
   # destination in flat dir
-  fdst="$BASE/$PKGFLAT/$filename"
+  fdst="$PKGFLAT/$filename"
   # ensure pkgtree parent dir is present
   [[ -d "$parent" ]] || mkdir -v -p "$parent"
   # copy file if necessary
@@ -79,11 +81,12 @@ find $SCANDIR -type f -name '*.pkg.tar.xz' -o -name '*.pkg.tar.xz.sig'| while re
 done
 
 # disallow listing of PKGFLAT. Too much file
-echo 'No listing allowed here.' > "$BASE/$PKGFLAT/index.html"
+echo 'No listing allowed here.' > "$PKGFLAT/index.html"
 
-echo "removing empty directories in ${BASE##*/}"
-find "$BASE" -type d -empty -delete -print
 
-touch "$BASE" "$BASE/$PKGFLAT"
+echo "removing empty directories in ${PKGBASE##*/}"
+find "$PKGBASE" -type d -empty -delete -print
+
+touch "$PKGBASE" "$PKGFLAT"
 
 # vim:set sw=2 ts=2 ft=sh et:
