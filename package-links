@@ -22,6 +22,8 @@ PKGBASE=/srv/ftp/archlinux/archive/packages
 PKGFLAT="$PKGBASE/.all" #must be subdirectory of $PKGBASE
 PKGEXT='.pkg.tar.xz'
 PKGSIG="$PKGEXT.sig"
+INDEX="$PKGFLAT/index.0.xz"
+TMPINDEX="$PKGFLAT/.index.0.xz"
 
 case $1 in
   -a) SCANDIR="$REPOS";;
@@ -57,7 +59,7 @@ find $SCANDIR -type f -name "*$PKGEXT" -o -name "*$PKGSIG"| while read src; do
   pkgname="${pkgname%-*}" #remove pkgrel
   pkgname="${pkgname%-*}" #remove pkgver
   first="${pkgname:0:1}"
-  parent="$BASE/${first,,}/$pkgname"
+  parent="$PKGBASE/${first,,}/$pkgname"
   # destination in tree
   tdst="$parent/$filename"
   # destination in flat dir
@@ -83,6 +85,18 @@ done
 # disallow listing of PKGFLAT. Too much file
 echo 'No listing allowed here.' > "$PKGFLAT/index.html"
 
+# creating a lightweight index (v0) for filenames
+# modification time is used to minimize download, so we don't update the file if equal
+rm -f "$TMPINDEX"
+find "$PKGFLAT" -name "*$PKGEXT" -printf '%f\n'|sed 's/.\{'${#PKGEXT}'\}$//'|sort|xz -9 > "$TMPINDEX"
+if [[ ! -e "$INDEX" ]]; then
+  mv "$TMPINDEX" "$INDEX"
+elif diff -q "$INDEX" "$TMPINDEX"; then
+  rm "$TMPINDEX"
+else
+  rm "$INDEX"
+  mv "$TMPINDEX" "$INDEX"
+fi
 
 echo "removing empty directories in ${PKGBASE##*/}"
 find "$PKGBASE" -type d -empty -delete -print
