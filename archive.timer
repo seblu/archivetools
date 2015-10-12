@@ -1,0 +1,10 @@
+[Unit]
+Description=Daily Archive update
+
+[Timer]
+OnCalendar=12:42:00
+AccuracySec=1m
+Persistent=true
+
+[Install]
+WantedBy=timers.target
