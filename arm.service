@@ -1,7 +1,0 @@
-[Unit]
-Description=ARM Update
-After=archive-repos.service
-
-[Service]
-Type=oneshot
-ExecStart=/home/archlinux/archivetools/arm-link

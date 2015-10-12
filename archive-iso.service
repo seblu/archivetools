@@ -1,6 +1,0 @@
-[Unit]
-Description=Archlinux Archive ISO Updates
-
-[Service]
-Type=oneshot
-ExecStart=/home/archlinux/archivetools/iso-rsync
