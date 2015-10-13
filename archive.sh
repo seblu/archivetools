@@ -64,8 +64,8 @@ repo_rsync() {
 	msg2 'Rsyncing...'
 	# rsync from master using last sync
 	# we must use absolute path with --link-dest to avoid errors
-	rsync  -rltH $LINKDEST --exclude '*/.*' "$REPO_RSYNC" "$SNAP/" ||
-		fail "Unable to rsync: $REPO_RSYNC"
+	rsync  -rltH $LINKDEST --exclude '*/.*' --exclude 'iso/*' "$ARCHIVE_RSYNC" "$SNAP/" ||
+		fail "Unable to rsync: $ARCHIVE_RSYNC"
 
 	# only to have a quick check of sync in listdir
 	touch "$SNAP"
@@ -92,6 +92,7 @@ repo_daily() {
 # update the packages tree with packages in snapshoted repositories
 repo_packages() {
 	msg "Updating package tree"
+	local PACKAGES_DIR="$ARCHIVE_DIR/packages"
 	local PKGFLAT="$PACKAGES_DIR/.all" #must be subdirectory of $PACKAGES_DIR
 	local SCANDIR filename pkgname first parent tdst fdst
 
@@ -172,6 +173,9 @@ repo_packages_index() {
 iso_rsync() {
 	msg "Rsyncing ISO"
 
+	local ISO_RSYNC="$ARCHIVE_RSYNC/iso/"
+	local ISO_DIR="$ARCHIVE_DIR/iso"
+
 	# ensure destination exists
 	[[ -d "$ISO_DIR" ]] || mkdir -p "$ISO_DIR"
 
@@ -183,6 +187,7 @@ iso_rsync() {
 aur_rsync() {
 	msg "Snapshoting AUR"
 
+	local AUR_DIR="$ARCHIVE_DIR/aur"
 	local SNAPR="$(date +%Y/%m/%d)"
 	local SNAP="$AUR_DIR/$SNAPR"
 
@@ -228,6 +233,8 @@ main() {
 	umask 022
 
 	if (( $ARCHIVE_REPO )); then
+		REPO_DIR="$ARCHIVE_DIR/repos"
+
 		repo_rsync
 
 		(( $REPO_DAYLY )) && repo_daily
@@ -238,6 +245,8 @@ main() {
 	(( $ARCHIVE_ISO)) && iso_rsync
 
 	(( $ARCHIVE_AUR)) && aur_rsync
+
+	return 0
 }
 
 main "$@"
