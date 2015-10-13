@@ -21,6 +21,10 @@ fail() {
 	exit 1
 }
 
+error() {
+	printf "\e[31;1m==> ERROR: \e[;1m%s\e[m\n" "$*" >&2
+}
+
 msg() {
 	printf "\e[1;32m==> \e[;1m%s\e[m\n" "$*"
 }
@@ -65,7 +69,7 @@ repo_rsync() {
 	# rsync from master using last sync
 	# we must use absolute path with --link-dest to avoid errors
 	rsync  -rltH $LINKDEST --exclude '*/.*' --exclude 'iso/*' "$ARCHIVE_RSYNC" "$SNAP/" ||
-		fail "Unable to rsync: $ARCHIVE_RSYNC"
+		error "Unable to rsync: $ARCHIVE_RSYNC"
 
 	# only to have a quick check of sync in listdir
 	touch "$SNAP"
@@ -180,7 +184,8 @@ iso_rsync() {
 	[[ -d "$ISO_DIR" ]] || mkdir -p "$ISO_DIR"
 
 	# Rsync from master using last sync
-	rsync -vrltH "$ISO_RSYNC" --include='/????.??.??/***' --exclude='*' "$ISO_DIR/"
+	rsync -vrltH "$ISO_RSYNC" --include='/????.??.??/***' --exclude='*' "$ISO_DIR/" ||
+		error "Unable to rsync: $ISO_RSYNC"
 }
 
 # archive snapshot of aur tree
@@ -207,7 +212,8 @@ aur_rsync() {
 
 	# Rsync from master using last sync
 	# We must use absolute path with --link-dest to avoid errors
-	rsync  -rltH $LINKDEST --exclude '*/.*' "$AUR_RSYNC" "$SNAP/"
+	rsync  -rltH $LINKDEST --exclude '*/.*' "$AUR_RSYNC" "$SNAP/" ||
+		error "Unable to rsync: $AUR_RSYNC"
 
 	# only to have a quick check of sync in listdir
 	touch "$SNAP"
