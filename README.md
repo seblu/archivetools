@@ -21,7 +21,6 @@ Dependencies
 ------------
 - [Bash](http://www.gnu.org/software/bash/bash.html)
 - [Rsync](http://rsync.samba.org/)
-- [OpenSSH](http://www.openssh.com/portable.html)
 - [Hardlink](http://jak-linux.org/projects/hardlink/)
 - [xz](http://tukaani.org/xz/)
 - [util-linux](https://www.kernel.org/pub/linux/utils/util-linux/)
