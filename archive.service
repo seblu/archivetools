@@ -3,6 +3,7 @@ Description=Archive Update
 
 [Service]
 Type=oneshot
+EnvironmentFile=/etc/archive.conf
 User=archive
 Group=archive
 ExecStart=/usr/bin/archive

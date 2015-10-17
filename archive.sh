@@ -190,16 +190,16 @@ iso_rsync() {
 }
 
 main() {
-	# running this as root, is a bad idea.
-	(( $UID == 0 )) && echo 'You should not run me as root!'
-
-	# Only one run at a time
-	singleton
-
 	# more verbose when launched from a tty
 	[[ -t 1 && -n "$DEBUG" ]] && set -x
 
 	load_config
+
+	# check running user/group
+	[[ "$(id -u -n)" == "$ARCHIVE_USER" ]] ||
+		fail "The script must be run as user $ARCHIVE_USER."
+	[[ "$(id -g -n)" == "$ARCHIVE_GROUP" ]] ||
+		fail "The script must be run as group $ARCHIVE_GROUP."
 
 	# we love IOs and we are nice guys
 	renice -n 19 -p $$ >/dev/null
@@ -207,6 +207,9 @@ main() {
 
 	# load umask
 	umask "${UMASK:-022}"
+
+	# Only one run at a time
+	singleton
 
 	if (( $ARCHIVE_REPO )); then
 		REPO_DIR="$ARCHIVE_DIR/repos"
