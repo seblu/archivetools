@@ -8,6 +8,7 @@ arch=('any')
 url='https://github.com/seblu/archivetools'
 license=('GPL2')
 depends=('rsync' 'hardlink' 'xz' 'util-linux')
+conflicts=('archivetools')
 backup=('etc/archive.conf')
 install=archivetools.install
 
