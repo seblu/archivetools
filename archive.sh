@@ -188,37 +188,6 @@ iso_rsync() {
 		error "Unable to rsync: $ISO_RSYNC"
 }
 
-# archive snapshot of aur tree
-aur_rsync() {
-	msg "Snapshoting AUR"
-
-	local AUR_DIR="$ARCHIVE_DIR/aur"
-	local SNAPR="$(date +%Y/%m/%d)"
-	local SNAP="$AUR_DIR/$SNAPR"
-
-	# ensure destination exists
-	[[ -d "$SNAP" ]] || mkdir -p "$SNAP"
-
-	# compute last but today
-	local LAST="$(ls -1d "$AUR_DIR"/2???/*/*|sort|grep -v $SNAPR|tail -n1)"
-
-	# display transfert info
-	msg2 "snapshot to: $SNAP"
-	msg2 "last path: $LAST"
-
-	[[ -n "$LAST" ]] && local LINKDEST="--link-dest=$LAST/"
-
-	msg2 'Rsyncing...'
-
-	# Rsync from master using last sync
-	# We must use absolute path with --link-dest to avoid errors
-	rsync  -rltH $LINKDEST --exclude '*/.*' "$AUR_RSYNC" "$SNAP/" ||
-		error "Unable to rsync: $AUR_RSYNC"
-
-	# only to have a quick check of sync in listdir
-	touch "$SNAP"
-}
-
 main() {
 	# running this as root, is a bad idea.
 	(( $UID == 0 )) && echo 'You should not run me as root!'
@@ -249,8 +218,6 @@ main() {
 	fi
 
 	(( $ARCHIVE_ISO)) && iso_rsync
-
-	(( $ARCHIVE_AUR)) && aur_rsync
 
 	return 0
 }
