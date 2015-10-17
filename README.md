@@ -17,6 +17,15 @@ makepkg -i
 systemctl enable archive.timer archive-hardlink.timer
 ```
 
+Debug
+-----
+```
+cd archivetools
+export DEBUG=1
+export ARCHIVE_CONFIG=archive.conf.test
+./archive.sh
+```
+
 Dependencies
 ------------
 - [Bash](http://www.gnu.org/software/bash/bash.html)

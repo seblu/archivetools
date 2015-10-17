@@ -1,0 +1,48 @@
+# vim:set sw=2 ts=2 ft=sh et:
+
+# Archlinux remote rsync server
+ARCHIVE_RSYNC='rsync://polymorf.fr/archlinux/'
+
+# Archive base directory
+ARCHIVE_DIR="$PWD/archive-root"
+
+# Archive User and Group
+ARCHIVE_USER=$(id -u -n)
+ARCHIVE_GROUP=$(id -g -n)
+
+# Packages extension
+PKGEXT='.pkg.tar.xz'
+PKGSIG="$PKGEXT.sig"
+
+# Umask used when archiving
+UMASK=022
+
+##############################################################################
+#### Repositories
+##############################################################################
+
+# Enable repositories archiving
+ARCHIVE_REPO=1
+
+# Enable daily repo trees
+# This offer daily, weekly, monthly, yearly snapshot trees
+REPO_DAYLY=1
+
+# Enable packages tree
+# Create a dedicated tree with packages sorted by name
+REPO_PACKAGES=1
+
+# Enable repository package index
+# Needed by agetpkg to list packages
+REPO_PACKAGES_INDEX=1
+
+# Search in all repository snapshop. This is slow.
+# Better option is to let it to 0 to look only in the last snapshot
+REPO_PACKAGES_FULL_SEARCH=0
+
+##############################################################################
+#### ISO
+##############################################################################
+
+# Enable ISO archiving
+ARCHIVE_ISO=1
