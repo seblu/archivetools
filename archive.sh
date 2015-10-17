@@ -204,8 +204,8 @@ main() {
 	renice -n 19 -p $$ >/dev/null
 	ionice -c 2 -n 7 -p $$
 
-	# permissive umask
-	umask 022
+	# load umask
+	umask "${UMASK:-022}"
 
 	if (( $ARCHIVE_REPO )); then
 		REPO_DIR="$ARCHIVE_DIR/repos"
@@ -217,7 +217,7 @@ main() {
 		(( $REPO_PACKAGES )) && repo_packages
 	fi
 
-	(( $ARCHIVE_ISO)) && iso_rsync
+	(( $ARCHIVE_ISO )) && iso_rsync
 
 	return 0
 }
