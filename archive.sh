@@ -43,6 +43,7 @@ singleton() {
 # load archive configuration
 load_config() {
 	local conf=${ARCHIVE_CONFIG:-/etc/archive.conf}
+	[[ -e "$conf" ]] || fail "No such config file: $conf"
 	msg "Loading configuration: $conf"
 	. "$conf" || fail 'Failed to load archive config'
 }
