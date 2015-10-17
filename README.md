@@ -14,7 +14,7 @@ Create a pacman package and install it.
 ```
 cd archivetools
 makepkg -i
-systemctl enable archive.timer
+systemctl enable archive.timer archive-hardlink.timer
 ```
 
 Dependencies

@@ -1,9 +1,12 @@
 [Unit]
 Description=Hardlinking of Archilinux Archive
-After=archive-repos.service archive-aur.service
+After=archive.service
 
 [Service]
 Type=oneshot
+EnvironmentFile=/etc/archive.conf
+User=archive
+Group=archive
 Nice=19
 IOSchedulingClass=idle
-ExecStart=/usr/bin/hardlink -Ocv /srv/ftp/archlinux/archive
+ExecStart=/usr/bin/hardlink -Ocv ${ARCHIVE_DIR}

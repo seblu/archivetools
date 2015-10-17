@@ -19,8 +19,9 @@ package() {
   # systemd stuff
   install -Dm644 archive.sysusers "$pkgdir/usr/lib/sysusers.d/archive.conf"
   install -Dm644 archive.tmpfiles "$pkgdir/usr/lib/tmpfiles.d/archive.conf"
-  install -Dm644 archive.service "$pkgdir/usr/lib/systemd/system/archive.service"
-  install -Dm644 archive.timer "$pkgdir/usr/lib/systemd/system/archive.timer"
+  for _p in archive.{timer,service} archive-hardlink.{timer,service}; do
+    install -Dm644 $_p "$pkgdir/usr/lib/systemd/system/$_p"
+  done
 }
 
 # vim:set ts=2 sw=2 et:
