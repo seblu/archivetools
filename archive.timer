@@ -8,3 +8,4 @@ Persistent=true
 
 [Install]
 WantedBy=timers.target
+Also=archive-hardlink.timer
