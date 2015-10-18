@@ -43,9 +43,9 @@ singleton() {
 # load archive configuration
 load_config() {
 	local conf=${ARCHIVE_CONFIG:-/etc/archive.conf}
-	[[ -e "$conf" ]] || fail "No such config file: $conf"
+	[[ -e "$conf" ]] || fail "No such config file: $conf."
 	msg "Loading configuration: $conf"
-	. "$conf" || fail 'Failed to load archive config'
+	. "$conf" || fail 'Failed to load archive config.'
 }
 
 # snapshot a repository
@@ -70,7 +70,7 @@ repo_rsync() {
 	# rsync from master using last sync
 	# we must use absolute path with --link-dest to avoid errors
 	rsync  -rltH $LINKDEST --exclude '*/.*' --exclude 'iso/*' "$ARCHIVE_RSYNC" "$SNAP/" ||
-		error "Unable to rsync: $ARCHIVE_RSYNC"
+		error "Unable to rsync: $ARCHIVE_RSYNC."
 
 	# only to have a quick check of sync in listdir
 	touch "$SNAP"
@@ -186,7 +186,7 @@ iso_rsync() {
 
 	# Rsync from master using last sync
 	rsync -vrltH "$ISO_RSYNC" --include='/????.??.??/***' --exclude='*' "$ISO_DIR/" ||
-		error "Unable to rsync: $ISO_RSYNC"
+		error "Unable to rsync: $ISO_RSYNC."
 }
 
 main() {
