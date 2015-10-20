@@ -40,12 +40,28 @@ singleton() {
 	flock -n 9 || fail "Unable to lock. ${0##*/} already running."
 }
 
+enforce_config_vars() {
+	local val
+	for val; do
+		[[ -n ${!val} ]] || fail "Missing $val directive in config file."
+	done
+}
+
 # load archive configuration
 load_config() {
 	local conf=${ARCHIVE_CONFIG:-/etc/archive.conf}
 	[[ -e "$conf" ]] || fail "No such config file: $conf."
 	msg "Loading configuration: $conf"
 	. "$conf" || fail 'Failed to load archive config.'
+	enforce_config_vars ARCHIVE_RSYNC ARCHIVE_DIR ARCHIVE_USER \
+		ARCHIVE_GROUP PKGEXT PKGSIG UMASK ARCHIVE_REPO ARCHIVE_ISO
+	if [[ $ARCHIVE_REPO == "1" ]]; then
+		enforce_config_vars REPO_DAYLY REPO_PACKAGES REPO_PACKAGES_INDEX \
+			REPO_PACKAGES_FULL_SEARCH REPO_RSYNC_TIMEOUT
+	fi
+	if [[ $ARCHIVE_ISO == "1" ]]; then
+		enforce_config_vars ISO_RSYNC_TIMEOUT
+	fi
 }
 
 # snapshot a repository
