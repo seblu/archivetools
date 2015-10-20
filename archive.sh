@@ -85,8 +85,9 @@ repo_rsync() {
 	msg2 'Rsyncing...'
 	# rsync from master using last sync
 	# we must use absolute path with --link-dest to avoid errors
-	rsync  -rltH $LINKDEST --exclude '*/.*' --exclude 'iso/*' "$ARCHIVE_RSYNC" "$SNAP/" ||
-		error "Unable to rsync: $ARCHIVE_RSYNC."
+	timeout $REPO_RSYNC_TIMEOUT rsync -rltH $LINKDEST \
+		--exclude '*/.*' --exclude 'iso/*' "$ARCHIVE_RSYNC" "$SNAP/" ||
+			error "Unable to rsync: $ARCHIVE_RSYNC."
 
 	# only to have a quick check of sync in listdir
 	touch "$SNAP"
@@ -201,8 +202,9 @@ iso_rsync() {
 	[[ -d "$ISO_DIR" ]] || mkdir -p "$ISO_DIR"
 
 	# Rsync from master using last sync
-	rsync -vrltH "$ISO_RSYNC" --include='/????.??.??/***' --exclude='*' "$ISO_DIR/" ||
-		error "Unable to rsync: $ISO_RSYNC."
+	timeout $ISO_RSYNC_TIMEOUT rsync -vrltH "$ISO_RSYNC" \
+		--include='/????.??.??/***' --exclude='*' "$ISO_DIR/" ||
+			error "Unable to rsync: $ISO_RSYNC."
 }
 
 main() {
