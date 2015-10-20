@@ -1,5 +1,5 @@
 [Unit]
-Description=Daily Archive update
+Description=Daily Archive Update
 
 [Timer]
 OnCalendar=12:42:00

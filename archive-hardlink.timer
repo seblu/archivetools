@@ -1,5 +1,5 @@
 [Unit]
-Description=Monthly Hardlinkng of Archlinux Archive
+Description=Monthly Archive Hardlinkng
 
 [Timer]
 OnCalendar=*-*-03 03:00:00

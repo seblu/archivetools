@@ -1,5 +1,5 @@
 [Unit]
-Description=Hardlinking of Archilinux Archive
+Description=Archive Hardlinking
 After=archive.service
 
 [Service]
