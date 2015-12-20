@@ -1,11 +1,11 @@
-Archive Tools
-=============
+Arch Linux Archive Tools
+========================
 
 Introduction
 ------------
-**archivetools** is a collection of tool used to setup an [Archlinux Archive](https://wiki.archlinux.org/index.php/Arch_Linux_Archive).
+**archivetools** is the project used to run the [Arch Linux Archive](https://wiki.archlinux.org/index.php/Arch_Linux_Archive). It's a turnkey solution to snapshot [Arch Linux](https://www.archlinux.org) packages repositories, ISOs images and boostrap tarballs. You can deploy one for your own needs.
 
-It's a turnkey solution to backups Archlinux repositories.
+The **Archive** is built by rsync'ing [rsync.archlinux.org](rsync://rsync.archlinux.org), or its mirrors, each day. *Rsync* features are used to transfert only the diff of new data from the previous snapshort and files are stored once with use of hardlinks.
 
 Installation
 ------------
@@ -44,4 +44,4 @@ License
 
 Author
 ------
-**archivetools** was started by *Sébastien Luttringer* in August 2013 to replace the former *Archlinux Rollback Machine* service.
+**archivetools** was started by *Sébastien Luttringer* in August 2013 to replace the former *Arch Linux Rollback Machine* service.
