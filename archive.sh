@@ -64,6 +64,22 @@ load_config() {
 	fi
 }
 
+# generate a temporary file with rsync filter list for repo sync
+gen_repo_filter() {
+	local tmp_file="$(mktemp)"
+	local _dir _dirs=(core extra testing staging
+		community community-testing community-staging
+		multilib multilib-testing multilib-staging
+		kde-unstable gnome-unstable
+		pool sources)
+	for _dir in "${_dirs[@]}"; do
+		echo "+ /$_dir/" >> "$tmp_file"
+	done
+	echo '- .*' >> "$tmp_file"
+	echo '- /*/' >> "$tmp_file"
+	echo "$tmp_file"
+}
+
 # snapshot a repository
 repo_rsync() {
 	msg "Snapshoting repositories"
@@ -81,12 +97,14 @@ repo_rsync() {
 	msg2 "last path: $LAST"
 
 	[[ -n "$LAST" ]] && local LINKDEST="--link-dest=$LAST/"
+	local FILTER_FILE=$(gen_repo_filter)
+	trap "rm '$FILTER_FILE'" 0
 
 	msg2 'Rsyncing...'
 	# rsync from master using last sync
 	# we must use absolute path with --link-dest to avoid errors
 	timeout $REPO_RSYNC_TIMEOUT rsync -rltH $LINKDEST \
-		--exclude '*/.*' --exclude 'iso/*' "$ARCHIVE_RSYNC" "$SNAP/" ||
+		--filter ". $FILTER_FILE" "$ARCHIVE_RSYNC" "$SNAP/" ||
 			error "Unable to rsync: $ARCHIVE_RSYNC."
 
 	# only to have a quick check of sync in listdir
