@@ -198,7 +198,7 @@ repo_packages_index() {
 	local TMPINDEX="$1/.index.0.xz"
 
 	rm -f "$TMPINDEX"
-	find "$1" -name "*$PKGEXT" -printf '%f\n'|sed 's/.\{'${#PKGEXT}'\}$//'|sort|xz -9 > "$TMPINDEX"
+	find "$1" -name "*$PKGEXT" -printf '%f\n'|sed 's/.\{'${#PKGEXT}'\}$//'|pacsort|xz -9 > "$TMPINDEX"
 	if [[ ! -e "$INDEX" ]]; then
 	  mv "$TMPINDEX" "$INDEX"
 	elif diff -q "$INDEX" "$TMPINDEX"; then
