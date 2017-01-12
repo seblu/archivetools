@@ -5,7 +5,7 @@ Introduction
 ------------
 **archivetools** is the project used to run the [Arch Linux Archive](https://wiki.archlinux.org/index.php/Arch_Linux_Archive). It's a turnkey solution to snapshot [Arch Linux](https://www.archlinux.org) packages repositories, ISOs images and boostrap tarballs. You can deploy one for your own needs.
 
-The **Archive** is built by rsync'ing [rsync.archlinux.org](rsync://rsync.archlinux.org), or its mirrors, each day. *Rsync* features are used to transfert only the diff of new data from the previous snapshort and files are stored once with use of hardlinks.
+The **Archive** is built by rsync'ing [rsync.archlinux.org](rsync://rsync.archlinux.org), or its mirrors, each day. *Rsync* features are used to transfer only the diff of new data from the previous snapshot and files are stored once with use of hardlinks.
 
 Installation
 ------------
