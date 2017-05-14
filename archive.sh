@@ -103,12 +103,16 @@ repo_rsync() {
 	msg2 'Rsyncing...'
 	# rsync from master using last sync
 	# we must use absolute path with --link-dest to avoid errors
-	timeout $REPO_RSYNC_TIMEOUT rsync -rltH $LINKDEST \
-		--filter ". $FILTER_FILE" "$ARCHIVE_RSYNC" "$SNAP/" ||
+	if ! timeout $REPO_RSYNC_TIMEOUT rsync -rltH $LINKDEST \
+		--filter ". $FILTER_FILE" "$ARCHIVE_RSYNC" "$SNAP/"; then
 			error "Unable to rsync: $ARCHIVE_RSYNC."
+			return 1
+	fi
 
 	# only to have a quick check of sync in listdir
 	touch "$SNAP"
+
+	return 0
 }
 
 # output the last repository snapshot
@@ -220,9 +224,12 @@ iso_rsync() {
 	[[ -d "$ISO_DIR" ]] || mkdir -p "$ISO_DIR"
 
 	# Rsync from master using last sync
-	timeout $ISO_RSYNC_TIMEOUT rsync -vrltH "$ISO_RSYNC" \
-		--include='/????.??.??/***' --exclude='*' "$ISO_DIR/" ||
+	if ! timeout $ISO_RSYNC_TIMEOUT rsync -vrltH "$ISO_RSYNC" \
+		--include='/????.??.??/***' --exclude='*' "$ISO_DIR/"; then
 			error "Unable to rsync: $ISO_RSYNC."
+			return 1
+	fi
+	return 0
 }
 
 main() {
@@ -250,11 +257,13 @@ main() {
 	if (( $ARCHIVE_REPO )); then
 		REPO_DIR="$ARCHIVE_DIR/repos"
 
-		repo_rsync
+		if repo_rsync; then
+			# do not update daily links when rsync fail. this could end-up with a
+			# last pointing to an empty repo.
+			(( $REPO_DAYLY )) && repo_daily
+			(( $REPO_PACKAGES )) && repo_packages
+		fi
 
-		(( $REPO_DAYLY )) && repo_daily
-
-		(( $REPO_PACKAGES )) && repo_packages
 	fi
 
 	(( $ARCHIVE_ISO )) && iso_rsync
