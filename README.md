@@ -7,11 +7,21 @@ Introduction
 
 The **Archive** is built by rsync'ing [rsync.archlinux.org](rsync://rsync.archlinux.org), or its mirrors, each day. *Rsync* features are used to transfer only the diff of new data from the previous snapshot and files are stored once with use of hardlinks.
 
-Installation
-------------
+Installation with pacman
+------------------------
+
+currently available in the *`extra`* repository in the official Arch repositories:  
+[archlinux.org/packages/extra/any/archivetools](https://archlinux.org/packages/extra/any/archivetools)
+
+```bash
+pacman -S archivetools
+```
+
+Manual Installation
+-------------------
 Create a pacman package and install it.
 
-```
+```bash
 cd archivetools
 makepkg -i
 systemctl enable archive.timer
@@ -19,7 +29,7 @@ systemctl enable archive.timer
 
 Debug
 -----
-```
+```bash
 cd archivetools
 export DEBUG=1
 export ARCHIVE_CONFIG=archive.conf.test
