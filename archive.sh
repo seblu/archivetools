@@ -235,6 +235,8 @@ iso_rsync() {
 main() {
 	# more verbose when launched from a tty
 	[[ -t 1 && -n "$DEBUG" ]] && set -x
+	
+	local EXIT_CODE=0
 
 	load_config
 
@@ -262,13 +264,16 @@ main() {
 			# last pointing to an empty repo.
 			(( $REPO_DAYLY )) && repo_daily
 			(( $REPO_PACKAGES )) && repo_packages
+		else
+			EXIT_CODE=1
 		fi
 
 	fi
 
 	(( $ARCHIVE_ISO )) && iso_rsync
+	EXIT_CODE=$(( $EXIT_CODE + $? ))
 
-	return 0
+	return $EXIT_CODE
 }
 
 main "$@"
